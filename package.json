@@ -14,7 +14,7 @@
     "test:integration": "vitest run --config vitest.integration.config.ts",
     "typecheck": "tsc --noEmit",
     "supabase:types": "supabase gen types typescript --project-id $SUPABASE_PROJECT_ID --schema public > src/types/supabase.ts",
-    "prepare": "husky"
+    "prepare": "husky intall"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
