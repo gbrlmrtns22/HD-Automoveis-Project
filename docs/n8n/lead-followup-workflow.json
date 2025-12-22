@@ -1,0 +1,27 @@
+{
+  "name": "Lead Follow-up",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "lead-followup",
+        "responseMode": "onReceived"
+      },
+      "id": "webhook",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook"
+    },
+    {
+      "parameters": {
+        "functionCode": "return items;"
+      },
+      "id": "transform",
+      "name": "Transform",
+      "type": "n8n-nodes-base.function"
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [[{ "node": "Transform", "type": "main", "index": 0 }]]
+    }
+  }
+}
