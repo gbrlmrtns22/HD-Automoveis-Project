@@ -1,0 +1,80 @@
+{
+  "name": "HD Automoveis Lead Follow-up",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lead-events",
+        "responseMode": "onReceived"
+      },
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [200, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json[\"tier\"]}}",
+              "operation": "equal",
+              "value2": "hot"
+            }
+          ]
+        }
+      },
+      "name": "Is Hot Lead?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [400, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.WHATSAPP_API_URL}}",
+        "method": "POST",
+        "jsonParameters": true,
+        "options": {
+          "retry": {
+            "maxTries": 3,
+            "waitBetweenTries": 2000
+          }
+        },
+        "bodyParametersJson": "={\"to\": $json.whatsapp, \"message\": \"Obrigado! Vamos falar sobre seu veículo\"}"
+      },
+      "name": "Send WhatsApp",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 2,
+      "position": [620, 220]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.CRM_API_URL}}",
+        "method": "POST",
+        "jsonParameters": true,
+        "options": {
+          "retry": {
+            "maxTries": 3,
+            "waitBetweenTries": 2000
+          }
+        },
+        "bodyParametersJson": "={\"lead\": $json}"
+      },
+      "name": "Send to CRM",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 2,
+      "position": [620, 380]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [[{"node": "Is Hot Lead?", "type": "main", "index": 0}]]
+    },
+    "Is Hot Lead?": {
+      "main": [
+        [{"node": "Send WhatsApp", "type": "main", "index": 0}],
+        [{"node": "Send to CRM", "type": "main", "index": 0}]
+      ]
+    }
+  }
+}
