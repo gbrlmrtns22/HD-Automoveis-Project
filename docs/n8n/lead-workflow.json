@@ -1,0 +1,51 @@
+{
+  "name": "HD Automoveis Lead Flow",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": { "item": [{ "mode": "everyMinute" }] },
+        "table": "lead_events"
+      },
+      "name": "Supabase Trigger",
+      "type": "n8n-nodes-base.supabaseTrigger",
+      "typeVersion": 1,
+      "position": [200, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "return items.map(item => ({ json: { ...item.json, retry: 0 } }));"
+      },
+      "name": "Prepare Payload",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [420, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://example-crm.local/leads",
+        "method": "POST",
+        "sendBody": true,
+        "jsonParameters": true,
+        "bodyParametersJson": "={{$json}}"
+      },
+      "name": "Send to CRM",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [640, 300]
+    },
+    {
+      "parameters": {
+        "conditions": { "boolean": [{ "value1": "={{$json.error}}", "operation": "isTrue" }] }
+      },
+      "name": "Error Branch",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [860, 300]
+    }
+  ],
+  "connections": {
+    "Supabase Trigger": { "main": [[{ "node": "Prepare Payload", "type": "main", "index": 0 }]] },
+    "Prepare Payload": { "main": [[{ "node": "Send to CRM", "type": "main", "index": 0 }]] },
+    "Send to CRM": { "main": [[{ "node": "Error Branch", "type": "main", "index": 0 }]] }
+  }
+}

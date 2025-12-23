@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: ["main"]
+    branches: [main]
   pull_request:
 
 jobs:
@@ -10,20 +10,35 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: pnpm/action-setup@v4
         with:
           version: 9
-
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 20
           cache: pnpm
-
-      - name: Install deps
+      - name: Install
         run: pnpm install --frozen-lockfile
-        env:
-          HUSKY: 0
+      - name: Lint
+        run: pnpm lint
+      - name: Test
+        run: pnpm test
 
-      - name: Run tests
-        run: pnpm test:ci
+  lighthouse:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - name: Install
+        run: pnpm install --frozen-lockfile
+      - name: Build
+        run: pnpm build
+      - name: Lighthouse CI
+        run: |
+          npx @lhci/cli autorun --upload.target=temporary-public-storage --assert.preset=lighthouse:recommended
